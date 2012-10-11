@@ -6,9 +6,10 @@
        {automeck,".*",
                  {git,"git@github.com:opscode/automeck.git",
                       {tag,"24f18f3e4fd177d16dd3deb3d69e3b683570218e"}}},
-       {bcrypt,".*",
-               {git,"git://github.com/smarkets/erlang-bcrypt.git",
-                    {tag,"f98feb6804c83dcb649c4826f204587097d40739"}}},
+
+       {bcrypt, ".*",
+                {git, "git://github.com/opscode/erlang-bcrypt.git", {tag, "0.5.0.2"}}},
+
        {bear,".*",
              {git,"git://github.com/boundary/bear.git",
                   {tag,"b1882d7ee88e775d961a2678e4fafecef7f77705"}}},
