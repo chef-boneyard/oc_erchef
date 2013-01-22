@@ -45,6 +45,20 @@ darklaunch data via request id. The opscode-account service will read
 a new HTTP header providing darklaunch data sent from oc_erchef to
 control look up for serving ACLs.
 
+-> Is there concern about adding another db call to every request?
+Over time each db call will add significant time to each request
+but for now, this might be acceptable.
+
+-> Do we have concerns over using an ETS table? I know we recently
+patched ibrowse (I believe) to not use an ETC table because of a
+memory issue (I believe, but an uncertain on this). Would a dict
+work better?
+
+-> Depending on the state of the move to Postgres, it might make
+sense to move this data into postgres, assuming oc_erchef can talk
+to mysql, postgres, and couch. Then the data only has to be moved
+once. However, this may introduce more complication than is worth it.
+
 Routing all API requests through oc_erchef and using the db will allow
 a fast and synchronized means of disabling all requests for a set of
 orgs, controlling routing to oc_erchef proper vs opscode-chef or
