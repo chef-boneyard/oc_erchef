@@ -119,6 +119,7 @@
        {stats_hero,".*",
                    {git,"git@github.com:opscode/stats_hero.git",
                         "5e923a36c92304a14b4a22471ae9d5b2ce3e9291"}},
+       {oc_smartgroups,".*",{git,"git@github.com:opscode/oc_smartgroups.git",{branch,"master"}}},
        {webmachine,".*",
                    {git,"git://github.com/basho/webmachine",
                         "0fffe21beb1bec3f87510cfad389d844782d457e"}}]}.
