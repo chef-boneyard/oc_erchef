@@ -1,7 +1,6 @@
 DEPS=$(CURDIR)/deps
 XCHECK_APPS=chef_authn oc_chef_authz chef_certgen chef_db chef_index chef_objects chef_wm \
 	    oc_chef_wm sqerl
-SOLVER_BIN=priv/solver
 
 # The release branch should have a file named USE_REBAR_LOCKED
 use_locked_config = $(wildcard USE_REBAR_LOCKED)
@@ -21,7 +20,7 @@ compile: $(DEPS) solver
 	@$(REBAR) compile
 
 solver:
-	deps/depsolver/native/gecodeinterface/build $(SOLVER_BIN)
+	cd deps/depsolver; $(MAKE) solver
 
 compile_skip:
 	@$(REBAR) compile skip_deps=true
@@ -30,12 +29,13 @@ compile_skip:
 xcheck:
 	@scripts/xcheck $(XCHECK_APPS)
 clean:
-	@rm -f $(SOLVER_BIN)
+	cd deps/depsolver; $(MAKE) clean
 	@$(REBAR) clean
 
 # clean and allclean do the same thing now. Leaving allclean for now
 # in case there are scripts that depend on it.
 allclean:
+	cd deps/depsolver; $(MAKE) clean
 	@$(REBAR) clean
 
 update: compile
