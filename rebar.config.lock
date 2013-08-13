@@ -40,7 +40,7 @@
                         "4c95fe4aa35c858dfc671aaf14eb2a13c035f642"}},
        {depsolver,".*",
                   {git,"git://github.com/opscode/depsolver.git",
-                       "3eb0f60a3611a938d589ddc1f7319ac26a10f514"}},
+                       "ef4965a96a0568275ee8118e34c327c2b08107bd"}},
        {edown,".*",
               {git,"git://github.com/seth/edown.git",
                    "30a9f7867d615af45783235faa52742d11a9348e"}},
