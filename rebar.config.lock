@@ -31,7 +31,7 @@
                   "d62cb227b9000ee866c8bcc724ddf68d87621dea"}},
        {sqerl,".*",
               {git,"git://github.com/opscode/sqerl.git",
-                   "b7cfafa34d311585900b9d2ca32d6e7da5f061e1"}},
+                   "5ce12377e784434db0bf71f1fc7b6a0bb77d10c9"}},
        {edown,".*",
               {git,"git://github.com/seth/edown.git",
                    "30a9f7867d615af45783235faa52742d11a9348e"}},
@@ -40,7 +40,7 @@
                         "12cbd38e9d4405628e498cf37992da15930ba1aa"}},
        {jiffy,".*",
               {git,"git://github.com/davisp/jiffy.git",
-                   "3b6a1327d418f7594ecb23aa8d7874c3986f433e"}},
+                   "c45f312b501961eb2167973f0e74ce9faad8b656"}},
        {darklaunch,".*",
                    {git,"git@github.com:opscode/opscode-darklaunch-erlang.git",
                         "1beb97d8e81fddcfc19af870b3dbf08bfdb810b3"}},
@@ -100,7 +100,7 @@
                      "d00f03ff6b2c1866f3e3001102c8ba16309a7217"}},
        {oc_chef_authz,".*",
                       {git,"git@github.com:opscode/oc_chef_authz.git",
-                           "de3f375dd331ada86f451b1608ad9b3d12bf2fbd"}},
+                           "2b2bb8f05de8166df0bf49b477c5db645e1e7290"}},
        {gen_server2,".*",
                     {git,"git://github.com/mdaguete/gen_server2.git",
                          "992650004c81ee921183488cb8115de4777e7bd9"}},
@@ -130,10 +130,10 @@
                             "5364f8d425f7b7c1a9ccf58e3aaae93e9e76fe01"}},
        {oc_chef_wm,".*",
                    {git,"git@github.com:opscode/oc_chef_wm.git",
-                        "6411f554f3f4dcd0b54c3004734f2902e28dd950"}},
+                        "544e1fc7c285337776626edf7c2b5b619f31828d"}},
        {eper,".*",
              {git,"git://github.com/massemanet/eper.git",
-                  "fad438c8fe20e0b3728ce2f2b6a886c2f15a3c30"}}]}.
+                  "066c9251e6e51dd6fd56be1546906becafd1f5b8"}}]}.
 {plugins,[rebar_lock_deps_plugin]}.
 {cover_enabled,true}.
 {erl_opts,[{d,'OC_CHEF'},
