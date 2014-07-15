@@ -1,8 +1,7 @@
 %% THIS FILE IS GENERATED. DO NOT EDIT IT MANUALLY %%
 
 {sub_dirs,["rel"]}.
-{deps,[{meck,".*",{git,"git://github.com/esl/meck.git","master"}},
-       {goldrush,".*",
+{deps,[{goldrush,".*",
                  {git,"git://github.com/DeadZen/goldrush.git",
                       "1d883423ac360b3536ca52dc733a0164bacf3109"}},
        {lager,".*",
@@ -32,6 +31,9 @@
        {sqerl,".*",
               {git,"git://github.com/opscode/sqerl.git",
                    "f49e97558ae8b54d773607fd1256ac96216e0d30"}},
+       {meck,".*",
+             {git,"git://github.com/eproxus/meck.git",
+                  "3fa3e9bbebc3e65f6ceffe4800d56335e9e3ebac"}},
        {edown,".*",
               {git,"git://github.com/seth/edown.git",
                    "30a9f7867d615af45783235faa52742d11a9348e"}},
@@ -121,13 +123,13 @@
                         "0d7cd921b5dd382b70d7ce3b1672c4a670ada313"}},
        {chef_wm,".*",
                 {git,"git@github.com:opscode/chef_wm.git",
-                     "c0e573490ddb83f6d0943c8bc9332a8b9ba31720"}},
+                     "dd2ad0c5a7b17c45de7120891c6511f19bff2f10"}},
        {oc_chef_action,".*",
                        {git,"git@github.com:opscode/oc_chef_action.git",
                             "52dbe835a222d8c702d0b3fa983e6e8eccf8249f"}},
        {oc_chef_wm,".*",
                    {git,"git@github.com:opscode/oc_chef_wm.git",
-                        "da18dcd0c048371ef96f2d5e4bf69aba5b697ead"}},
+                        "c105109293bee0a3993f59399391f3f52ac745d3"}},
        {eper,".*",
              {git,"git://github.com/massemanet/eper.git",
                   "56206a0bc7f15870f9aa4013de3f9808893347db"}}]}.
