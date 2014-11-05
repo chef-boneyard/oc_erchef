@@ -105,7 +105,7 @@
                      "4382837a32f62079ad1172bafdf394c39fa69a26"}},
        {oc_chef_authz,".*",
                       {git,"git@github.com:opscode/oc_chef_authz.git",
-                           "f0691f6c8b2fcb6959b25e73c2f10a75636782ff"}},
+                           "86e94bd7f030fda726e01d6648be174bad00b575"}},
        {gen_server2,".*",
                     {git,"git://github.com/mdaguete/gen_server2.git",
                          "992650004c81ee921183488cb8115de4777e7bd9"}},
