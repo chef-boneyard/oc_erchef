@@ -1,4 +1,4 @@
-%% -*- erlang-indent-level: 4;indent-tabs-mode: nil; fill-column: 92 -*-
+%% -*- erlang-indent-level: 3;indent-tabs-mode: nil; fill-column: 92 -*-
 %% ex: ts=4 sw=4 et
 %% @author Dave Parfitt <dparfitt@chef.io>
 %% Copyright 2014 Chef Software, Inc. All Rights Reserved.
@@ -35,8 +35,6 @@
          validate_request/3
         ]).
 
-
--define(CHEF_CONTROL_GROUP_MESSAGE_VERSION, <<"0.1.0">>).
 
 -define(CONTROL_GROUP_SCHEMA,
         {[ {<<"control_groups">>, array},
@@ -116,21 +114,19 @@ from_json(Req, #base_state{resource_state = #control_state{control_data = Contro
 construct_payload(FullControlGroupPayload,
                   Id,
                   Req, #base_state{reqid = RequestId,
-                                   organization_name = OrgName,
-                                   requestor = _Requestor}
+                                   organization_name = OrgName}
                                    ) ->
+    MsgVersion = req_header("x-ops-audit-report-protocol-version", Req),
+    {FullControlGroupNode} = FullControlGroupPayload,
     Msg = {[{<<"message_type">>, <<"control_groups">>},
-            {<<"message_version">>, ?CHEF_CONTROL_GROUP_MESSAGE_VERSION},
+            {<<"message_version">>, MsgVersion},
             {<<"organization_name">>, OrgName},
             {<<"chef_server_fqdn">>, hostname()},
             {<<"recorded_at">>, req_header("x-ops-timestamp", Req)},
             {<<"remote_hostname">>, req_header("x-forwarded-for", Req)},
             {<<"request_id">>, RequestId},
-            {<<"node_name">>, ej:get({<<"node_name">>}, FullControlGroupPayload)},
-            {<<"id">>, Id},
-            {<<"run_id">>, ej:get({<<"run_id">>}, FullControlGroupPayload)},
-            {<<"control_groups">>, ej:get({<<"control_groups">>}, FullControlGroupPayload)}
-           ]},
+            {<<"id">>, Id}
+              | FullControlGroupNode]},
     Msg1 = maybe_add_remote_request_id(Msg, req_header("x-remote-request-id", Req)),
     iolist_to_binary(chef_json:encode(Msg1)).
 
