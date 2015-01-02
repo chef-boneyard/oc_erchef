@@ -1,0 +1,44 @@
+* Purge plan for couchdb
+** The goal of this activity is to reduce the disk space and compaction overhead associated with couch files.
+*** There are two aspects to purging.
+1. The actual purge is invoked from mover_chef_couch_removal.
+There are three functions that can be used.
+purge_orgs() zero arity will begin purging every org in the
+<<"completed">> state
+purge_orgs(NumberOfOrgsToPurge) will start purging orgs in the
+<<"completed">> state counting up to the NumberOfOrgsToPurge then stopping.
+purge_org(__INSERT_ORG_NAME__) will purge a single org and then stop
+
+Workflow of purge orgs (all orgs in <<"completed">>)
+1) set the state of the org to <<"purge_started">>
+2) read the next org in org state <<"completed">> into memory
+3) process all outstanding couch data into in memory ets tables
+4) in batches sized by the applicaton:get_env(moser,
+   purge_chunksize), begin sending bulk purge requests to couchdb.
+5) In the same purge_chunksize, backup any purged data
+6) Sleep for application:get_env(moser, purge_throttle) milliseconds,
+   defaults to 1
+7) Repeat steps 4,5,6 until purge complete
+
+2. In the event of an error.
+In the event of an error, the purge process will halt.  The org will
+be in the state <<"purge_started">>.  The
+mover_chef_couch_removal_worker will restart and be in the ready
+state.  The log will show the org name of the last purge started
+org.  This name will then be used to restore the org via
+ mover_chef_couch_removal_worker:restore(__OrgName__).
+
+The above applies to both purges started singly or in groups.
+
+There are four tuneable configuration parameters for purge.
+
+purge_chunksize is how many documents to be purged in a single batch
+purge_throttle is the number of milliseconds to sleep between batches
+purge_backup_dir is the location of restore files
+purge_backup is a boolean that states whether to backup purges or not
+
+If you wish to disable backup/restore overhead in purge, you can call
+application:set_env(moser, purge_backup, false).  This will disable
+the backup process during purge.  Note, any orgs purged with backup
+off will have to go through a manual restore from hourly/daily in the
+event anything goes wrong.
