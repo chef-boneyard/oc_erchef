@@ -1,6 +1,7 @@
 oc_erchef - Opscode PRIVATE Chef API
 ====================================
 
+lol travis
 
 This is the top-level project for the Erlang implementation of OPC's
 REST API. It corresponds to the `erchef` project in OSC but includes
