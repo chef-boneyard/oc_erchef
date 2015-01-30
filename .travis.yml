@@ -7,9 +7,11 @@ language: erlang
 otp_release:
   - R16B03-1
 before_script:
+  - gpg --keyserver pgpkeys.mit.edu --recv-key  8B48AD6246925553
+  - gpg -a --export 8B48AD6246925553 | sudo apt-key add -
+  - echo "deb http://http.us.debian.org/debian unstable main non-free contrib" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update -qq
-  - sudo apt-get install -y cpanminus perl libdbd-pg-perl build-essential
-  - sudo cpanm --quiet --notest App::Sqitch
+  - sudo apt-get install -y sqitch libdbd-pg-perl postgresql-client
 addons:
   postgresql: "9.3"
 script:
@@ -18,4 +20,3 @@ script:
   - make bundle
   - ./rebar skip_deps=true ct
   - ./rebar skip_deps=true eunit
-
