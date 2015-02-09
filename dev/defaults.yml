@@ -1,0 +1,17 @@
+config:
+  # This path must be under your home dir, and relative to it?
+  # Or can we just smartly map another directory in...
+  - source_path: oc
+
+projects:
+  - name: oc_erchef
+    source: git@github.com:chef/oc_erchef.git
+    branch: master
+    type: erlang
+    rel-mapping:
+      from: /mnt/host/$source_path/oc_erchef
+      to: /opt/opscode/embedded/services/oc_erchef/
+
+
+
+
