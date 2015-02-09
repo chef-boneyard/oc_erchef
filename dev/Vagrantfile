@@ -1,0 +1,67 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby
+
+unless Vagrant.has_plugin?("vagrant-omnibus")
+  raise 'Please install vagrant-omnibus before continuing.'
+end
+
+installer_file = ENV['INSTALLER']
+
+#class SetupInstaller < Vagrant.plugin('2')
+#  class InstallSanityAction
+#    def initialize(app, env)
+#      @app = app
+#    end
+
+ #   def call(env)
+      raise "Please set INSTALLER to the path to the .deb package for Chef Server 12+." if installer_file.nil?
+      raise "#{$installer_file} does not exist! Please fix this." unless File.file?(installer_file)
+      installer_path = File.dirname(File.expand_path(installer_file))
+      installer_name = File.basename(installer_file)
+ #     @app.call(env)
+ #   end
+ # end
+
+ # name 'install_sanity'
+
+ # action_hook 'install_sanity' do |hook|
+ #   hook.before Vagrant::Action::Builtin::Provision, InstallSanityAction
+ # end
+#end
+Vagrant.configure("2") do |config|
+  config.vm.box     = "oc_erchef-ubuntu-14.04"
+  config.vm.box_url= "https://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box"
+  config.vm.define "oc-erchef-dev" do |h_config|
+    h_config.vm.box =  "erchef-dev"
+    h_config.vm.hostname = "api.erchef.dev"
+   # h_config.vm.network :public_network,  :bridge => "#{interface}"
+    h_config.vm.provider :virtualbox do |vb|
+      # You should have enough machine to handle this:
+      vb.customize ["modifyvm", :id, "--memory", 4096, "--cpus", 4]
+    end
+
+    #
+    # TODO chef_zero is documented, but not working in current version?
+
+    h_config.vm.provision "chef_solo" do |chef|
+      # Note here; your INSTALLER_FILE most be
+      h_config.vm.synced_folder ENV['HOME'], "/mnt/host"
+      h_config.vm.synced_folder installer_path, "/mnt/chef-server-installer"
+
+      # TODO you need vagrant-omnibus.  Likely cleaner to just grab it from a local source as per chef server installer
+      # to avoid re-downloads...
+      config.omnibus.chef_version = :latest
+      chef.cookbooks_path = "cookbooks"
+
+      # Again, wtf, is supported in current docs?
+      #chef.install = true
+      #chef.log_level = "fatal"
+      chef.add_recipe("chef-server::provision")
+      chef.json = {
+        "chef-server" => {  "installer_path" => "/mnt/chef-server-installer/#{installer_name}" }
+      }
+    end
+  end
+
+
+end
