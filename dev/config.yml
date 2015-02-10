@@ -1,5 +1,8 @@
-projects:
-  oc_erchef:
-    :
+# Place any complete or partial overrides to the configuration in defaults.yml here.
+# config:
+#   - source_path: src
+# projects:
+#   - name: oc_erchef
+#     source: git@github.com:marcparadise/oc_erchef.git
 
 

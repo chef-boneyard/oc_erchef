@@ -1,0 +1,14 @@
+#!/bin/bash
+export BENCHMARK_DIR=~/opscode-benchmark
+echo "loading data bags and roles"
+knife data bag create users
+knife data bag from file users $BENCHMARK_DIR/data/data_bags/users/glados.json
+knife data bag from file users $BENCHMARK_DIR/data/data_bags/users/jkeiser.json
+knife data bag from file users $BENCHMARK_DIR/data/data_bags/users/tim.json
+for f in `ls $BENCHMARK_DIR/data/roles/*.json`; do
+    knife role from file $f
+done
+echo "setting up cookbooks"
+ln -s $BENCHMARK_DIR/data/cookbooks
+echo "uploading all cookbooks"
+knife cookbook upload -a
