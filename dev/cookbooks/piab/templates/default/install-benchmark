@@ -1,0 +1,33 @@
+#!/bin/bash
+
+echo "cloning opscode-benchmark repo"
+git clone git@github.com:opscode/opscode-benchmark.git
+
+echo "loading test data into chef"
+cd /home/vagrant/osc-knife
+./setup-benchmark
+
+echo "installing jruby and bundle-ating opscode-benchmark"
+cd /home/vagrant
+echo 'export PATH="/home/vagrant/.rbenv/bin:$PATH":/opt/chef-server/embedded/jre/bin' >> .bash_profile
+echo 'eval "$(rbenv init -)"' >> .bash_profile
+source ~/.bash_profile
+
+cd ruby-build
+sudo ./install.sh
+
+cd ~
+rbenv rehash
+rbenv install jruby-1.6.3
+rbenv rehash
+rbenv global jruby-1.6.3
+gem install bundler
+rbenv rehash
+
+cd opscode-benchmark
+bundle install --binstubs
+echo "ok, hotshot, try this:"
+echo "logout and back in to initialize rbenv stuff, then:"
+echo "cd ~/opscode-benchamrk"
+echo 'jruby bin/benchmark-run -e ../osc-knife -n 10 -i 15 -l 60 -o tmp/output.csv'
+echo 'jruby bin/gather-stats tmp/output.csv'

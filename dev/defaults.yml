@@ -1,17 +1,48 @@
+# TODO set up starter/simple cookbooks that do in place file mods or similar?
 config:
-  # This path must be under your home dir, and relative to it?
-  # Or can we just smartly map another directory in...
-  - source_path: oc
-
+  # This is the path relative to your home directory
+  # under which you have all project source code
+  # When necessary, dependencies that you request to be pulled in for modification
+  # will be placed here as well.
+  source_path: oc
+  packages: [ ntp, curl, wget, htop, uuid-dev, tmux, vim ]
+#
+# f["projects"]["oc_erchef"]["rel-mapping"]["from"].gsub("@source_path", f["config"]["source_path"])
+#
 projects:
-  - name: oc_erchef
+  oc_erchef:
     source: git@github.com:chef/oc_erchef.git
     branch: master
     type: erlang
+    build_env: USE_SYSTEM_GECODE=1 MAKEFLAGS='-j 2'
+      # TODO this should be implicit - even user_defaults will apply. (Also
+      # let's just dump that in /home/vagrant? /root?
+    build_cmd: ./rebar get-deps && make clean relclean devrel && erlc /vagrant/user_default.erl && mv user_default.beam /srv/piab/mounts/oc_erchef/rel/oc_erchef",
     rel-mapping:
-      from: /mnt/host/$source_path/oc_erchef
-      to: /opt/opscode/embedded/services/oc_erchef/
+      from: /mnt/host/@source_path/oc_erchef
+      to: /opt/opscode/embedded/services/oc_erchef
+  oc-chef-pedant:
+    source: git@github.com:chef/oc-chef-pedant.git
+    branch: master
+    type: ruby
+    build_cmd: bundle install
+      # TODO can't really auto-resolve these implicit deps, can we?
+    rel-mapping:
+      from: /mnt/host/@source_path/oc-chef-pedant
+      from: /opt/opscode/embedded/services/oc-chef-pedant
 
+users:
+  rainbowdash: { orgs: ponyville }
+  fluttershy: { orgs: ponyville }
+  applejack: { orgs: ponyville }
+  pinkiepie: { orgs: ponyville }
+  twighlightsparkle: { orgs: ponyville }
+  rarity: { orgs: ponyville }
 
+orgs:
+  ponyville:
+    last_name: pony
+    admins: [ applejack ]
+    nodes: [ node1, node2, node3 ]
 
 

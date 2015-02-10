@@ -1,0 +1,8 @@
+Defaults env_reset
+Defaults env_keep+=SSH_AUTH_SOCK
+Defaults exempt_group=sudo
+Defaults secure_path="/usr/local/sbin:/user/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+root ALL(ALL:ALL) ALL
+%admin ALL=(ALL) ALL
+%sudo ALL=NOPASSWD:ALL
+
