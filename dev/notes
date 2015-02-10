@@ -1,0 +1,8 @@
+Things to do:
+- rake sql - launch psql as opscode-pgsql w/ oc_erchef
+- rake load  - loads project in via bind mount
+- rake unload
+ * erlang project type:
+
+ - note etc/app.config -> /var/opt/opscode/opscode-erchef/etc/app.config
+ - note log -> /var/log/opscode/opscode-erchef

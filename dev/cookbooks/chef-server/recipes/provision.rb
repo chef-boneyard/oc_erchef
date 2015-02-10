@@ -1,10 +1,5 @@
-#
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Copyright:: Copyright (c) 2012 Opscode, Inc.
-#
-# All Rights Reserved
-
 installer_path = node['chef-server']['installer_path']
+
 package File.basename(installer_path) do
   source installer_path
   provider Chef::Provider::Package::Dpkg
@@ -29,18 +24,16 @@ template "/etc/opscode/chef-server.rb" do
   notifies :run, "execute[reconfigure]", :immediately
 end
 
+template "/etc/hosts" do
+  source "hosts.erb"
+  owner "root"
+  group "root"
+  action :create
+  variables({"fqdns" => ["api.chef-server.dev",  "manage.chef-server.dev" ]})
+end
+
 execute "reconfigure" do
   command "chef-server-ctl reconfigure"
   action :nothing
-  not_if { node['private-chef']['topology'] =~ /ha/ }
 end
 
-# ensure the node can resolve the FQDNs locally
-[ "api.chef-server.dev",
-  "manage.chef-server.dev"].each do |fqdn|
-
-  execute "echo 127.0.0.1 #{fqdn} >> /etc/hosts" do
-    not_if "host #{fqdn}" # host resolves
-    not_if "grep -q #{fqdn} /etc/hosts" # entry exists
-  end
-end

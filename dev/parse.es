@@ -1,7 +1,7 @@
 #!/usr/bin/env escript
 
 % This simple script will parse the deps section of a rebar.config and spit out
-% a ruby hash.
+% a ruby hash. Used for automatic dependency loading and linking of erlang projects
 main([]) ->
   io:fwrite("Usage: ./parse.es rebar.config-path");
 main([FileName|_]) ->
