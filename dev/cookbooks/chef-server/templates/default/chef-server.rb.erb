@@ -1,0 +1,14 @@
+topology "<%= node['private-chef']['topology'] %>"
+
+
+api_fqdn "api.chef-server.dev"
+
+<% if node['chef-server']['configuration'] %>
+<% node['chef-server']['configuration'].each_pair do |component, tunables| -%>
+<% tunables.each_pair do |name, value| -%>
+<% value = %Q["#{value}"] if value.kind_of?(String) %>
+<%= "#{component}['#{name}'] = #{value}" %>
+<% end -%>
+<% end -%>
+<% end -%>
+
