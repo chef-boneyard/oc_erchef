@@ -1,17 +1,8 @@
 
 
 node['packages'].each do |p|
-  package package
+  package p
 end
-package "ntp"
-package "curl"
-package "wget"
-package "htop"
-package "uuid-dev"
-package "tmux"
-package "vim"
-package "emacs24-nox"
-
 directory "/opt/users" do
   action :create
 end
