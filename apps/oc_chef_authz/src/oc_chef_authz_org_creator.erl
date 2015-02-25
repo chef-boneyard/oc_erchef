@@ -95,8 +95,6 @@
            {add_acl,
             [mk_tl(container, [cookbooks, data, nodes, roles, environments, policies, cookbook_artifacts])],
             [create, read, update, delete], [{group, users}]},
-           {add_acl, [{container, policies}], [read], [{group, clients}]},
-           {add_acl, [{container, cookbook_artifacts}], [read], [{group, clients}]},
            {add_acl, [{container, clients}], [read, delete], [{group, users}]},
            {add_acl, [mk_tl(container, [groups, containers]), {organization}], [read], [{group, users}]},
            {add_acl, [{container, sandboxes}], [create], [{group, users}]},
@@ -104,7 +102,9 @@
            %% clients
            {add_acl, [{container, nodes}], [read, create], [{group, clients}]},
            {add_acl, [{container, data}], [read], [{group, clients}]},
-           {add_acl, mk_tl(container, [cookbooks, environments, roles]), [read] , [{group, clients}]}
+           {add_acl, mk_tl(container, [cookbooks, environments, roles]), [read] , [{group, clients}]},
+           {add_acl, [{container, policies}], [read], [{group, clients}]},
+           {add_acl, [{container, cookbook_artifacts}], [read], [{group, clients}]}
           ]
          }
         ]).
