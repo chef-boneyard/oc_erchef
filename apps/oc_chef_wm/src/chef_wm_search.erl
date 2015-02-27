@@ -112,7 +112,8 @@ to_json(Req, #base_state{chef_db_context = DbContext,
                          resource_state = SearchState,
                          organization_name = OrgName,
                          organization_guid = OrgId,
-                         reqid = ReqId} = State) ->
+                         reqid = ReqId,
+                         requestor_id = RequestorId} = State) ->
     BatchSize = batch_size(),
     Query = SearchState#search_state.solr_query,
     case solr_query(Query, ReqId) of
@@ -120,7 +121,9 @@ to_json(Req, #base_state{chef_db_context = DbContext,
             IndexType = Query#chef_solr_query.index,
             Paths = SearchState#search_state.partial_paths,
             BulkGetFun = make_bulk_get_fun(DbContext, OrgName, IndexType, Paths, Req),
-            {DbNumFound, Ans} = make_search_results(BulkGetFun, Ids, BatchSize,
+            FilteredIds = filter_permitted_results(ReqId, RequestorId,
+                                                   OrgId, DbContext, IndexType, Ids),
+            {DbNumFound, Ans} = make_search_results(BulkGetFun, FilteredIds, BatchSize,
                                                     Start, SolrNumFound),
             State1 = State#base_state{log_msg = search_log_msg(SolrNumFound,
                                                                solr_ids_length(Ids), DbNumFound)},
@@ -155,6 +158,24 @@ solr_ids_length({Solr1Ids, _}) ->
     length(Solr1Ids);
 solr_ids_length(Solr1Ids) ->
     length(Solr1Ids).
+
+%% @doc Check the READ authz permissions on a list of search results, returning only the
+%% list of available results
+filter_permitted_results(ReqId, RequestorId, OrgId, DbContext, {data_bag, BagName}, Ids) ->
+    case chef_db:fetch(#chef_data_bag{org_id = OrgId, name = BagName}, DbContext) of
+        not_found -> [];
+        #chef_data_bag{authz_id = AuthzId} ->
+          case oc_chef_authz:is_authorized_on_resource(RequestorId, object, AuthzId, actor, RequestorId, read) of
+              true -> Ids;
+              false -> [];
+              Error ->
+                  lager:error("is_authorized_on_resource failed (~p, ~p, ~p): ~p~n",
+                              [read, {data_bag, BagName}, RequestorId, Error]),
+                  {{halt, 500}, ReqId}
+          end
+    end;
+filter_permitted_results(ReqId, RequestorId, OrgId, DbContext, IndexType, Ids) ->
+    Ids.
 
 %% Return current app config value for batch size, defaulting if absent.
 batch_size() ->
