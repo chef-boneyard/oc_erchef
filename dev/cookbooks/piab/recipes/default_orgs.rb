@@ -25,11 +25,11 @@ organizations.each do |org|
     # TODO knife in path?
     # TODO pivotal or just use validator?
     execute "create client #{nodename}" do
-      command "knife client create #{nodename} -u #{orgname}-validator -k #{org_validator} -s https://api.erchef.dev > #{node_key_path}"
+      command "knife client create #{nodename} -u #{orgname}-validator -k #{org_validator} -s https://api.chef-server.dev > #{node_key_path}"
     end
     execute "create node #{nodename}" do
       # username first-name last-name email password
-      command "knife node create #{nodename} -u #{nodename} -k #{node_key_path} -s https://api.erchef.dev
+      command "knife node create #{nodename} -u #{nodename} -k #{node_key_path} -s https://api.chef-server.dev"
     end
 
   end
@@ -56,7 +56,7 @@ organizations.each do |org|
       variables(
         :username => username,
         :orgname => orgname,
-        :server_fqdn => 'api.erchef.dev'
+        :server_fqdn => 'api.chef-server.dev'
       )
       mode "0777"
       action :create

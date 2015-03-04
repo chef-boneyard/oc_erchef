@@ -1,3 +1,4 @@
+
 Things to do:
 - rake sql - launch psql as opscode-pgsql w/ oc_erchef
 - rake load  - loads project in via bind mount
@@ -6,3 +7,14 @@ Things to do:
 
  - note etc/app.config -> /var/opt/opscode/opscode-erchef/etc/app.config
  - note log -> /var/log/opscode/opscode-erchef
+ -
+
+
+Global /usr/bin: "load"
+- load project project-name
+- load dep project-name dep-name
+
+- fixie installation  - loadable?
+- misisng: install chef-server package, configure it with sane chef-server.rb
+- global path opscode bin
+

@@ -1,0 +1,11 @@
+
+log_level :info
+log_location STDOUT
+node_name "pivotal"
+client_key "/etc/opscode/pivotal.pem"
+# Effectively allows for knife raw usage. To do things as pivotal
+# within orgs, you'll need to specify the server url using -s
+chef_server_url "https://api.chef-server.dev"
+ssl_verify_mode :verify_none
+
+

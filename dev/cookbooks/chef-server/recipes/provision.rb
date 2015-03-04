@@ -1,5 +1,10 @@
 installer_path = node['chef-server']['installer_path']
 
+# Bare minimum packages for other stuff to work:
+package "build-essential"
+package "git"
+
+# And now chef server installer:
 package File.basename(installer_path) do
   source installer_path
   provider Chef::Provider::Package::Dpkg

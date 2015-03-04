@@ -10,17 +10,12 @@ directory "/opt/orgs" do
   action :create
 end
 
-directory "#{ENV['HOME']}/.chef" do
-  action :create
-end
-
 # We add a few utility scripts for dev work into $HOME/bin
 directory "/home/vagrant/bin" do
   action :create
   owner 'vagrant'
   group 'vagrant'
 end
-
 
 template "/home/vagrant/bin/b2f" do
   source "b2f"
@@ -57,13 +52,12 @@ end
 
 
 home = ENV['HOME']
-include_recipe "piab::users"
-include_recipe "piab::users_pivotal"
 
 file "#{home}/.erlang" do
   content "code:load_abs(\"#{home}/bin/user_default\")"
   action :create
 end
+
 cookbook_file "user_defaults.erl" do
   path "#{home}/bin/user_defaults.erl"
   action :create_if_missing

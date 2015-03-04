@@ -2,8 +2,8 @@
 config:
   # This is the path relative to your home directory
   # under which you have all project source code
-  # When necessary, dependencies that you request to be pulled in for modification
-  # will be placed here as well.
+  # When necessary, dependencies that you request to be pulled
+  # in for modification will be placed checked out to this location as well.
   source_path: oc
   packages: [ ntp, curl, wget, htop, uuid-dev, tmux, vim ]
 #
@@ -31,18 +31,12 @@ projects:
       from: /mnt/host/@source_path/oc-chef-pedant
       from: /opt/opscode/embedded/services/oc-chef-pedant
 
-users:
-  rainbowdash: { orgs: ponyville }
-  fluttershy: { orgs: ponyville }
-  applejack: { orgs: ponyville }
-  pinkiepie: { orgs: ponyville }
-  twighlightsparkle: { orgs: ponyville }
-  rarity: { orgs: ponyville }
-
 orgs:
   ponyville:
     last_name: pony
     admins: [ applejack ]
     nodes: [ node1, node2, node3 ]
 
-
+users:
+  applejack: { orgs: ponyville }
+  fluttershy: { orgs: ponyville }
