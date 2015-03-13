@@ -15,11 +15,11 @@ bummer:
 	@/bin/echo Then \'make devvm\' will get you running
 
 devvm_stop:
-	private-chef-ctl stop $(PROJ)
+	chef-server-ctl stop opscode-erchef
 
 devvm_link:
 	rm -f $(DEVVM_DIR)/sys.config
-	ln -s  /var/opt/opscode/$(PROJ)/sys.config $(DEVVM_DIR)/sys.config
+	ln -s  /var/opt/opscode/opscode-erchef/sys.config $(DEVVM_DIR)/sys.config
 
 devvm: devvm_stop devrel devvm_link
 
