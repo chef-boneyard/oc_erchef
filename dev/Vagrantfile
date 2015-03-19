@@ -4,60 +4,47 @@
 require "yaml"
 require "pp"
 
-# TODO looks like vagrant doesn't persist
-# mount data, instead trying to unmount during destroy
-# from the data it gets here.
-# A bit of a hack - we want to validate installer path, but
-# we don't want to have to do this every time we perform any action
-# (like vagrant ssh) - only when we're doing actions that care about it
-class ::Setup < Vagrant.plugin('2')
-  #class InstallSanityAction
-    #def initialize(app, env)
-      #@app = app
-    #end
+# We're going to cheat a bit here - just snag the command given from the shell
+# and only enforce our restrictions when it makes sense
+# TODO support for install or download:
+# - chef server
+# - server plugins
+# - chef dk
+# - chef client
+# - let's just assume for now that it's in the same path as the installer
+#
 
-    #def call(env)
-      #@env = env
-      #Setup.validate!
-      #@app.call(@env)
-    #end
-  #end
+action = ARGV.shift
+# Our additional args come after argv[1] - which could be meant for vagrant,
+# or -- to indicate that it's for us
+ARGV.shift
+installer = ARGV.shift || ENV['INSTALLER']
 
-  #name 'install_sanity'
+if action =~ /^(provision|up|reload)$/
+  installer_path = nil
+  server_installer_name = nil
+  attributes = YAML.load_file("defaults.yml")
+  raise "Please set INSTALLER to the path to the .deb package for Chef Server 12+." if installer.nil?
+  raise "#{installer} does not exist! Please fix this." unless File.file?(installer)
+  %w{vagrant-omnibus vagrant-cachier}.each do |plugin|
+    unless Vagrant.has_plugin?(plugin)
+      raise "Please install #{plugin} before proceeding: vagrant install #{plugin}"
+    end
+  end
+  # TODO
+  installer_path = File.dirname(File.expand_path(installer))
+  server_installer_name = File.basename(installer)
 
-  #action_hook 'install_sanity' do |hook|
-    #hook.before Vagrant::Action::Builtin::Provision, Setup::InstallSanityAction
-    #hook.before Vagrant::Action::Builtin::ConfigValidate, Setup::InstallSanityAction
-    #hook.before Vagrant::Action::Builtin::SyncedFolders, Setup::InstallSanityAction
-  #end
-  @@installer_path = nil
-  @@installer_name = nil
-  @@installer = ENV['INSTALLER']
-  @@attributes = YAML.load_file("defaults.yml")
-  def self.validate!
-      raise "Please set INSTALLER to the path to the .deb package for Chef Server 12+." if installer.nil?
-      raise "#{::Setup.installer} does not exist! Please fix this." unless File.file?(installer)
-      @@installer_path = File.dirname(File.expand_path(::Setup.installer))
-      @@installer_name = File.basename(::Setup.installer)
+  # TODO
+  chefdk_installer_name = "chefdk_0.4.0-1_amd64.deb"
 
-      unless Vagrant.has_plugin?("vagrant-omnibus")
-        raise "Please install vagrant-omnibus before proceeding: vagrant install vagrant-omnibus"
-      end
-  end
-  def self.installer
-    @@installer
-  end
-  def self.installer_name
-    @@installer_name
-  end
-  def self.installer_path
-    @@installer_path
-  end
-  def self.attributes
-    @@attributes
-  end
+else
+  # Set some defaults so the other actions don't cause config load failures
+  # These won't actually get used.
+  installer_path = "/tmp"
+  server_installer_name = "installer"
+  chefdk_installer_name = ""
 end
-Setup.validate!
 
 Vagrant.configure("2") do |config|
   config.vm.box     = "oc_erchef-ubuntu-14.04"
@@ -65,39 +52,37 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "api.chef-server.dev"
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", 4096, "--cpus", 4]
-  end
-  if ::Setup.attributes
-    attributes = ::Setup.attributes
-    json = {
-      "chef-server" => {
-        "installer_path" => "/mnt/chef-server-installer/#{Setup.installer_name}"
-      },
-      "packages" => attributes["config"]["packages"],
-      "orgs" => attributes["orgs"],
-      "users" => attributes["users"]
-    }
+    if attributes
+      json = {
+        "chef-server" => {
+          # TODO - configurable?
+          "installers" => [ server_installer_name, chefdk_installer_name ]
+        },
+        "packages" => attributes["config"]["packages"],
+        "orgs" => attributes["orgs"],
+        "users" => attributes["users"]
+      }
+    end
     config.vm.synced_folder ENV['HOME'], "/mnt/host"
-    config.vm.synced_folder ::Setup.installer_path, "/mnt/chef-server-installer"
+    config.vm.synced_folder installer_path, "/mnt/installers"
     # TODO chef_zero is documented, but not working in current version?
     config.vm.provision "chef_solo" do |chef|
-      config.omnibus.chef_version = :latest
+      # TODO can we just use a btach provisioner to instal the chefdk package, then
+      # use that chef-client instaed fo
+      # config.omnibus.chef_version = :latest
       chef.cookbooks_path = "cookbooks"
-
+      config.cache.auto_detect
       # Again, wtf, is supported in current docs?
       #chef.install = true
       #chef.log_level = "fatal"
       chef.add_recipe("chef-server::provision")
-      chef.add_recipe("apt")
-      chef.add_recipe("build-essential")
-      chef.add_recipe("git")
+      #chef.add_recipe("piab::apt")
       chef.add_recipe("piab::default")
-      chef.add_recipe("piab::orgs-and-users")
-      chef.add_recipe("piab::dev")
-      chef.json = json
+      #chef.add_recipe("piab::orgs-and-users")
+      #chef.add_recipe("piab::dev")
+      chef.json = json if json
     end
   end
-
- # end
 
 
 end

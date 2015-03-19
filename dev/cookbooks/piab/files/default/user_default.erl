@@ -6,13 +6,6 @@
 -module(user_default).
 % required to expose the record definitions we load in from various includes
 -compile(export_all).
-
-% Including these makes them available in the shell,
-% so that you'll be able to refer to common records by name.
--include("/srv/piab/mounts/oc_erchef/include/chef_types.hrl").
--include("/srv/piab/mounts/oc_erchef/include/oc_chef_authz.hrl").
--include("/srv/piab/mounts/oc_erchef/include/oc_chef_types.hrl").
-
 %
 % Invoke this from the erlang shell to reload a module in place
 % for example, um(oc_chef_wm_base).

@@ -1,8 +1,0 @@
-package "ntp"
-package "curl"
-package "wget"
-package "htop"
-package "uuid-dev"
-package "vim"
-package "tmux"
-package "emacs24-nox"

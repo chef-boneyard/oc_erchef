@@ -1,18 +1,32 @@
-installer_path = node['chef-server']['installer_path']
-
 # Bare minimum packages for other stuff to work:
+execute "apt-get-update" do
+  command "apt-get update"
+  ignore_failure true
+  not_if do
+    File.exists?('/var/chef/cache/apt-update-done')
+  end
+end
+
+file "/var/chef/cache/apt-update-done" do
+  action :create
+end
 package "build-essential"
 package "git"
 
-# And now chef server installer:
-package File.basename(installer_path) do
-  source installer_path
-  provider Chef::Provider::Package::Dpkg
-  action :install
-  not_if { File.exists? "/opt/opscode/bin/chef-server-ctl" }
-end
+# Install required external packages.
+# TODO eventually support auto-download of these packages from packagecloud
+ node['chef-server']['installers'].each do |package_name|
+  package package_name do
+    source "/mnt/installers/#{package_name}"
+    provider Chef::Provider::Package::Dpkg
+    action :install
+    not_if { File.exists? "/var/chef/cache/#{package_name}-installed" }
+  end
+  file "/var/chef/cache/#{package_name}-installed" do
+    action :create
+  end
 
-# configure
+end
 
 directory "/etc/opscode" do
   owner "root"
