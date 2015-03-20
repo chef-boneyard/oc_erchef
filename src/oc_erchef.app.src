@@ -42,8 +42,7 @@
                   runtime_tools,
                   tools,
                   uuid,
-                  webtool,
-                  wx
+                  webtool
                  ]},
   {mod, { oc_erchef_app, []}},
   {env, []}
