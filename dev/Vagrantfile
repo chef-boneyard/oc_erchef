@@ -50,8 +50,25 @@ Vagrant.configure("2") do |config|
   config.vm.box     = "oc_erchef-ubuntu-14.04"
   config.vm.box_url= "https://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box"
   config.vm.hostname = "api.chef-server.dev"
+  config.vm.network "private_network", ip: "33.33.33.100"
   config.vm.provider :virtualbox do |vb|
-    vb.customize ["modifyvm", :id, "--memory", 4096, "--cpus", 4]
+    vb.customize ["modifyvm", :id,
+                  "--name", "chef-server",
+                  "--memory", 4096,
+                  "--cpus", 4,
+                  "--natdnshostresolver1", "on",
+                  "--usb", "off",
+                  "--usbehci", "off",
+                  "--nictype1", "virtio",
+                  "--nictype2", "virtio"
+                  # ^ TODO if platform is mac don't?
+    ]
+    #vb.customize [
+      #"storagectl", :id,
+      #"--name", "SATA Controller",
+      #"--hostiocache", "on"
+    #]
+
     if attributes
       json = {
         "chef-server" => {
@@ -69,7 +86,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision "chef_solo" do |chef|
       # TODO can we just use a btach provisioner to instal the chefdk package, then
       # use that chef-client instaed fo
-      # config.omnibus.chef_version = :latest
+      config.omnibus.chef_version = :latest
       chef.cookbooks_path = "cookbooks"
       config.cache.auto_detect
       # Again, wtf, is supported in current docs?

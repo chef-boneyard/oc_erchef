@@ -22,13 +22,15 @@ end
 home = "/home/vagrant"
 # Ensure the private chef bin/ dir is first in our PATH
 path_elts = ["#{home}/bin",
+             '/opt/opscode/embedded/bin',
              '/opt/opscode/bin',
              '/opt/chefdk/bin',
              '/opt/chefdk/embedded/bin',
-             '/opt/opscode/embedded/bin',
              '/opt/opscode/embedded/jre/bin',
             '$PATH']
 wanted_path = path_elts.join(':')
+# TODO - this can be a template or file.
+# Too - export DEVVM=1
 file "/etc/profile.d/omnibus-embedded.sh" do
   content "export PATH=\"#{wanted_path}\""
   action :create
