@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+require_relative "../lib/dvm"
+
+#begin
+  DVM::Application.start(ARGV)
+#rescue Exception => e
+#  puts e.message
+#end

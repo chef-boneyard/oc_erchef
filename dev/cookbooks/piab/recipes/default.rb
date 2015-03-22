@@ -30,9 +30,13 @@ path_elts = ["#{home}/bin",
             '$PATH']
 wanted_path = path_elts.join(':')
 # TODO - this can be a template or file.
-# Too - export DEVVM=1
 file "/etc/profile.d/omnibus-embedded.sh" do
-  content "export PATH=\"#{wanted_path}\""
+  content <<EOF
+# export DEVVM=1
+export USE_SYSTEM_GECODE=1
+# TODO will this be diffeerent for root vs user?
+export PATH=#{wanted_path}
+EOF
   action :create
 end
 # TODO - both home things for root and vagrant?

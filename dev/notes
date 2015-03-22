@@ -15,6 +15,50 @@ Global /usr/bin: "load"
 - load dep project-name dep-name
 
 - fixie installation  - loadable?
-- misisng: install chef-server package, configure it with sane chef-server.rb
-- global path opscode bin
+
+# oc_erchef instructions
+# TODO /mnt/host -> host
+cd /mnt/host/oc/oc_erchef
+make distclean
+./rebar get-deps << doesn't seem needed
+
+make devrel
+
+
+cd _rel/oc_erchef
+rm sys.config
+rm -rf log
+ln -s /var/opt/opscode/opscode-erchef/sys.config
+ln -s /var/log/opscode/opscode-erchef log
+chef-server-ctl stop opscode-erchef
+# No need to do this if we're just going to ignore opsocde-erchef service/ bypass chef-server-ctl stuff
+sudo mount -o bind  /mnt/host/oc/oc_erchef/_rel /opt/opscode/embedded/service/opscode-erchef
+HOME=/var/opt/opscode/opscode-erchef _rel/oc_erchef/bin/oc_erchef console
+# sudo mount -o bind  /mnt/host/oc/oc_erchef/_rel/oc_erchef /opt/opscode/embedded/service/opscode-erchef
+
+
+# This works for console attach:
+root@api:/mnt/host/oc/oc_erchef/_rel/oc_erchef# erl -name remsh@127.0.0.1 -remsh erchef@127.0.0.1 -setcookie erchef
+
+# This works for start/stop sync for update:
+NOte ideal, but it's currently slurping down CPU.
+erl -hidden -name dvm@127.0.0.1 -setcookie erchef -eval "rpc:call('erchef@127.0.0.1', sync, go, [])." -s erlang halt
+erl -hidden -name dvm@127.0.0.1 -setcookie erchef -eval "rpc:call('erchef@127.0.0.1', sync, pause, [])." -s erlang halt
+
+
+# oc-chef-pedant
+bundle install
+bundle install --binstubs
+
+
+# omnibus-cookbooks
+mount -o bind /mnt/host/oc/opscode-omnibus/files/private-chef-cookbooks/private-chef /opt/opscode/embedded/cookbooks/private-chef
+chef-server-ctl reconfigure
+
+# Loaded state:
+ - if a project is loaded and started, make sure to kill it again reconfigure? Or can we temporarily disable restart in some way?
+# Note after a reconfigure we change hostname in ngnx - wtf isn't it picking up the saved prop?
+
+
+
 

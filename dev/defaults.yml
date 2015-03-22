@@ -3,7 +3,8 @@ config:
   # This is the path relative to your home directory
   # under which you have all project source code
   # When necessary, dependencies that you request to be pulled
-  # in for modification will be placed checked out to this location as well.
+  # in for modification will be *checked out* to this location as well, if they
+  # do not already exist.
   source_path: oc
   packages: [ ntp, curl, wget, htop, uuid-dev, tmux, vim ]
 #
@@ -13,20 +14,37 @@ projects:
   oc_erchef:
     source: git@github.com:chef/oc_erchef.git
     branch: master
+    database: opscode_chef
     type: erlang
-    build_env: USE_SYSTEM_GECODE=1 MAKEFLAGS='-j 2'
-      # TODO this should be implicit - even user_defaults will apply. (Also
-      # let's just dump that in /home/vagrant? /root?
-    build_cmd: ./rebar get-deps && make clean relclean devrel && erlc /vagrant/user_default.erl && mv user_default.beam /srv/piab/mounts/oc_erchef/rel/oc_erchef",
-    rel-mapping:
-      from: /mnt/host/@source_path/oc_erchef
-      to: /opt/opscode/embedded/services/oc_erchef
+    service:
+      rel-type: relx
+      service-name: opscode-erchef
+      cookie: erchef
+      node: erchef@127.0.0.1
+      #- chef-server-ctl stop opscode-erchef
+      #- rm -rf deps
+      #- ./rebar get-deps
+      #- make clean relclean
+      #- USE_SYSTEM_GECODE=1 MAKEFLAGS='-j 8' make devrel
+    # rel-mapping:
+      # from: /mnt/host/@source_path/oc_erchef/_rel/oc_erchef
+      # to: /opt/opscode/embedded/services/opscode-erchef
+  omnibus-cookbooks:
+    source: git@github.com:chef/opscode-omnibus.git
+    branch: master
+    type: cookbook
+
+
   oc-chef-pedant:
+    notes: This project can be run from its default
     source: git@github.com:chef/oc-chef-pedant.git
     branch: master
+    database: opscode_chef
     type: ruby
     build_cmd: bundle install
       # TODO can't really auto-resolve these implicit deps, can we?
+    build:
+      - bundle install
     rel-mapping:
       from: /mnt/host/@source_path/oc-chef-pedant
       from: /opt/opscode/embedded/services/oc-chef-pedant

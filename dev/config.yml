@@ -5,4 +5,5 @@
 #   - name: oc_erchef
 #     source: git@github.com:marcparadise/oc_erchef.git
 
-
+config:
+  packages: [ --vim ]

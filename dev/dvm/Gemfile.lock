@@ -1,0 +1,18 @@
+GIT
+  remote: https://github.com/danielsdeleo/deep_merge.git
+  revision: f9df6fdb0d0090318e8015814e68e5ca2973b493
+  specs:
+    deep_merge (1.0.1)
+
+GEM
+  specs:
+    highline (1.6.21)
+    thor (0.18.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  deep_merge!
+  highline
+  thor
