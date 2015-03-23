@@ -33,6 +33,7 @@
          ejson_for_indexing/2,
          extract_checksums/1,
          fields_for_update/1,
+         fields_for_insert/1,
          fields_for_fetch/1,
          id/1,
          is_indexed/0,
@@ -340,7 +341,7 @@ is_valid_version(Version) ->
 %% @doc Given a binary parse it to a valid cookbook version tuple {Major, Minor, Patch} or
 %% raise a `badarg' error. Each of `Major', `Minor', and `Patch' must be non-negative
 %% integer values less than `?MAX_VERSION' (max size of value in pg int column). It is
-%% acceptable to provide a value with one or two dots (1.0 is the same as 1.0.0). Less 
+%% acceptable to provide a value with one or two dots (1.0 is the same as 1.0.0). Less
 %% than one dot or more than two dots is an error.
 %%
 %% @end
@@ -611,6 +612,38 @@ is_indexed() ->
 
 ejson_for_indexing(#chef_cookbook_version{}, _CBV) ->
     error(not_indexed).
+
+fields_for_insert(#chef_cookbook_version{
+                     'id' = Id,
+                     'major' = Major,
+                     'minor' = Minor,
+                     'patch' = Patch,
+                     'frozen' = Frozen,
+                     'meta_attributes' = MetaAttributes,
+                     'meta_deps' = MetaDeps,
+                     'meta_long_desc' = MetaLongDesc,
+                     'metadata' = Metadata,
+                     'serialized_object' = SerializedObject,
+                     'last_updated_by' = LastUpdatedBy,
+                     'created_at' = CreatedAt,
+                     'updated_at' = UpdatedAt,
+                     'org_id' = OrgId,
+                     'name' = Name}) ->
+    [Id,
+     Major,
+     Minor,
+     Patch,
+     Frozen,
+     MetaAttributes,
+     MetaDeps,
+     MetaLongDesc,
+     Metadata,
+     SerializedObject,
+     LastUpdatedBy,
+     CreatedAt,
+     UpdatedAt,
+     OrgId,
+     Name].
 
 fields_for_update(#chef_cookbook_version{ id                = Id,
                                           frozen            = Frozen,
