@@ -49,6 +49,7 @@ module DVM
     end
 
     def load_dep(name, build)
+      _
       # TODO separate impl so we can ensure parse_deps and "loaded?"
       raise ArgumentError, "This application does not support loading dependencies."
     end
@@ -64,6 +65,10 @@ module DVM
     def console
       raise ArgumentError, "This application does not support a console."
     end
+    def ensure_dep(name)
+      raise ArgumentError, "This project does not have the dep #{name}" unless deps.has_key? name
+    end
+
     def parse_deps
       @deps = {}
     end
@@ -84,7 +89,7 @@ module DVM
     def parse_deps
       path = File.expand_path("../../parse.es", __FILE__)
       eval(`#{path} #{@rebar_config_path}`).each do |name, data|
-        @deps << ProjectDep.new(name, "#{project_dir}/deps", data)
+        @deps[name] = ProjectDep.new(name, "#{project_dir}/deps", data)
       end
     end
     def console
@@ -102,13 +107,12 @@ module DVM
     def unload_dep(name)
 
     end
-    def unload_dep(name)
-
-      # update
-    end
 
     def load_dep(name, build)
+      # TODO wrap this in parent class
       raise ArgumentError, "Load the project before loading deps." unless loaded?
+      ensure_dep
+
       # update
     end
 
@@ -165,7 +169,6 @@ module DVM
       cmd.error!
 
     end
-
     def update
       puts "alerting sync to pick up any updates..."
       node = service["node"]
@@ -174,7 +177,7 @@ module DVM
     end
 
     def erl_command
-      "erl -hidden -name dvm@127.0.0.1 -setcookkie #{service["cookie"]}"
+      "erl -hidden -name dvm@127.0.0.1 -setcookie #{service["cookie"]}"
     end
 
   end

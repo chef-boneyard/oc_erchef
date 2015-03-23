@@ -43,9 +43,9 @@ module DVM
       else
         say(highline.color("#{project} deps:", :bold))
         project = @projects[project]
-        project.deps.each do |dep|
+        project.deps.each do |name, dep|
           status, c = dep.loaded? ? ["loaded", :green] : ["available", :white]
-          say("  #{dep.name}: #{highline.color(status, c)}")
+          say("  #{name}: #{highline.color(status, c)}")
         end
       end
     end
@@ -56,10 +56,11 @@ module DVM
     desc "load <project> [dep]", "load a project or project's named dependency"
     def load(project_name, dep = nil)
       ensure_project(project_name)
+      project = @projects[project_name]
       if dep.nil?
-        @projects[project_name].load(options[:build])
+        project.load(options[:"no-build"])
       else
-        @projects[project_name].load_dep(dep, options[:build])
+        project.load_dep(dep, options[:"no-build"])
       end
     end
 
@@ -69,6 +70,21 @@ module DVM
       ensure_project(project_name)
     end
 
+    option :"no-update", type: :boolean,
+                        aliases: ['-n'],
+                        desc: "by default, if a dep is unloaded an update is triggered. If you "\
+                              " would rather unloading triggered a make instead, use --no-update. " \
+                              "You may find this option is faster."
+    desc "unload <project> [dep]", "unload a project or a project's named dependency"
+    def unload(project_name, dep = nil)
+      ensure_project(project_name)
+      if dep.nil?
+        @projects[project_name].unload(options[:build])
+      else
+        @projects[project_name].unload_dep(dep, options[:build])
+      end
+
+    end
     desc "update <project>",  "if the  project supports it, apply any updates to a running instance"
     def update(project_name)
       ensure_project(project_name)
@@ -92,6 +108,9 @@ module DVM
 
   def ensure_project(name)
     raise ArgumentException, "No such project: #{name}" unless @projects.has_key?(name)
+  end
+  def ensure_dep(project, dep)
+    raise ArgumentException, "No such dep #{dep} for project #{project}" unless @projects[name].has_dep(dep)
   end
 
   def highline
