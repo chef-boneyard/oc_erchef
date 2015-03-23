@@ -24,8 +24,6 @@ home = "/home/vagrant"
 path_elts = ["#{home}/bin",
              '/opt/opscode/embedded/bin',
              '/opt/opscode/bin',
-             '/opt/chefdk/bin',
-             '/opt/chefdk/embedded/bin',
              '/opt/opscode/embedded/jre/bin',
             '$PATH']
 wanted_path = path_elts.join(':')
@@ -96,6 +94,19 @@ template "/home/vagrant/bin/b2f" do
   mode "0777"
   action :create
 end
+
+# And now for our dev vm controller app:
 #
-# TODO MOTD with some useful instructions and available commands
-# TODO our configure tool should be installed, configured with deps, and placed in the path.
+execute "set up in a fragile way" do
+  command <<-EOM
+export PATH=/opt/opscode/embedded/bin:$PATH
+cd /tmp
+git clone https://github.com/danielsdeleo/deep_merge.git
+cd deep_merge
+rake package
+gem install -l pkg/deep_merge-1.0.1.gem
+cd /vagrant/dvm
+gem build dvm.gemspec
+gem install -l dvm-100.0.0.gem
+EOM
+end

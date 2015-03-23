@@ -1,5 +1,4 @@
 <% # We do not use env_keep - sudo then lets you share the /vagrant .bashrc and home settings  %>
-Defaults secure_path="/usr/local/sbin:/user/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 opscode ALL=(ALL:ALL) ALL
 root ALL=(ALL:ALL) ALL
 vagrant ALL=(ALL) NOPASSWD:ALL
