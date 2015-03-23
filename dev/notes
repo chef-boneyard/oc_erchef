@@ -64,3 +64,11 @@ For a dep:
  -- force - do the load process even if it's already loaded.
 
 some basic testing cookbooks set up with test org?
+!
+Make sure root andvagrant have the path set up
+use abs path for yml files
+make sure dvm is in the path
+
+             # TODO - temporary hack:
+# TODO MOTD with some useful instructions and available commands
+# TODO our configure tool should be installed, configured with deps, and placed in the path.

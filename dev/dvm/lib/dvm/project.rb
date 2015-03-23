@@ -82,7 +82,7 @@ module DVM
       @service_dir = "/var/opt/opscode/embedded/service/#{service['name']}"
     end
     def parse_deps
-      path = File.expand_path(File.join(File.dirname(__FILE__), "../../parse.es"))
+      path = File.expand_path("../../parse.es", __FILE__)
       eval(`#{path} #{@rebar_config_path}`).each do |name, data|
         @deps << ProjectDep.new(name, "#{project_dir}/deps", data)
       end
