@@ -19,8 +19,11 @@
 %% under the License.
 %%
 
-
 -module(chef_cookbook_version).
+
+-include("../../include/chef_types.hrl").
+-include_lib("mixer/include/mixer.hrl").
+
 
 -export([
          assemble_cookbook_ejson/2,
@@ -47,10 +50,10 @@
          record_fields/0,
          set_created/2,
          set_updated/2,
-
          type_name/1,
          update_from_ejson/2,
-         version_to_binary/1
+         version_to_binary/1,
+         list/2
         ]).
 
 %% database named queries
@@ -63,20 +66,12 @@
          update_query/0
         ]).
 
--include_lib("mixer/include/mixer.hrl").
--mixin([{chef_object,[
-                      {default_fetch/2, fetch},
-                      {default_update/2, update}
-                     ]}]).
--export([
-         list/2
-         ]).
+-mixin([{chef_object_default_callbacks, [ fetch/2, update/2 ]}]).
 
 -ifdef(TEST).
 -compile(export_all).
 -endif.
 
--include("../../include/chef_types.hrl").
 
 %% This is the maximum size of an int value in postgres used to store major, minor, and
 %% patch versions.
