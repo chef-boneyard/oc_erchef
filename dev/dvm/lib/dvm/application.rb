@@ -16,9 +16,13 @@ module DVM
       super
 
       @projects = {}
-      @config = YAML.load_file("../defaults.yml")
-      if File.file? "../config.yml"
-        overrides = YAML.load_file("../config.yml")
+      # Note use of hard-coded paths here.  Since I want this installed
+      # as a gem, and to accept modifications at any time to the config files,
+      # and this is intended for use ina  controlled environment - this seems
+      # like the best answer.
+      @config = YAML.load_file("/vagrant/defaults.yml")
+      if File.file? "/vagrant/config.yml"
+        overrides = YAML.load_file("/vagrant/config.yml")
         @config.deep_merge! overrides
       end
       @config["projects"].each do |name, project|
