@@ -5,8 +5,10 @@ GIT
     deep_merge (1.0.1)
 
 GEM
+  remote: https://rubygems.org/
   specs:
     highline (1.6.21)
+    mixlib-shellout (2.0.1)
     thor (0.18.1)
 
 PLATFORMS
@@ -15,4 +17,5 @@ PLATFORMS
 DEPENDENCIES
   deep_merge!
   highline
+  mixlib-shellout
   thor

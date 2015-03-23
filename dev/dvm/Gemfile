@@ -1,4 +1,7 @@
+source 'https://rubygems.org'
+
 gem "deep_merge", git:  "https://github.com/danielsdeleo/deep_merge.git"
+gem "mixlib-shellout"
 gem "thor"
 gem "highline"
 

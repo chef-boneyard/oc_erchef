@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
+require 'bundler/setup'
+
 require_relative "../lib/dvm"
 
-#begin
+begin
   DVM::Application.start(ARGV)
-#rescue Exception => e
-#  puts e.message
-#end
+rescue ArgumentError => e
+  say(HighLine.color(e.message, :red))
+end

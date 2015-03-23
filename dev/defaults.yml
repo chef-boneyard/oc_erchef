@@ -1,42 +1,28 @@
-# TODO set up starter/simple cookbooks that do in place file mods or similar?
 config:
-  # This is the path relative to your home directory
-  # under which you have all project source code
-  # When necessary, dependencies that you request to be pulled
-  # in for modification will be *checked out* to this location as well, if they
-  # do not already exist.
+  # TODO couldn't we just infer this by going up a couple of levels?
+  # Where does your chef code live, relative to your home directory?
   source_path: oc
   packages: [ ntp, curl, wget, htop, uuid-dev, tmux, vim ]
-#
-# f["projects"]["oc_erchef"]["rel-mapping"]["from"].gsub("@source_path", f["config"]["source_path"])
-#
+
 projects:
   oc_erchef:
-    source: git@github.com:chef/oc_erchef.git
-    branch: master
+    git:
+      uri: git@github.com:chef/oc_erchef.git
+      branch: master
     database: opscode_chef
     type: erlang
     service:
       rel-type: relx
-      service-name: opscode-erchef
+      name: opscode-erchef
       cookie: erchef
       node: erchef@127.0.0.1
-      #- chef-server-ctl stop opscode-erchef
-      #- rm -rf deps
-      #- ./rebar get-deps
-      #- make clean relclean
-      #- USE_SYSTEM_GECODE=1 MAKEFLAGS='-j 8' make devrel
-    # rel-mapping:
-      # from: /mnt/host/@source_path/oc_erchef/_rel/oc_erchef
-      # to: /opt/opscode/embedded/services/opscode-erchef
   omnibus-cookbooks:
-    source: git@github.com:chef/opscode-omnibus.git
-    branch: master
+    git:
+      uri: git@github.com:chef/opscode-omnibus.git
+      branch: master
     type: cookbook
 
-
   oc-chef-pedant:
-    notes: This project can be run from its default
     source: git@github.com:chef/oc-chef-pedant.git
     branch: master
     database: opscode_chef

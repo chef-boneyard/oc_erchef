@@ -24,7 +24,6 @@ make distclean
 
 make devrel
 
-
 cd _rel/oc_erchef
 rm sys.config
 rm -rf log
@@ -37,21 +36,17 @@ HOME=/var/opt/opscode/opscode-erchef _rel/oc_erchef/bin/oc_erchef console
 # sudo mount -o bind  /mnt/host/oc/oc_erchef/_rel/oc_erchef /opt/opscode/embedded/service/opscode-erchef
 
 
-# This works for console attach:
-root@api:/mnt/host/oc/oc_erchef/_rel/oc_erchef# erl -name remsh@127.0.0.1 -remsh erchef@127.0.0.1 -setcookie erchef
-
-# This works for start/stop sync for update:
-NOte ideal, but it's currently slurping down CPU.
-erl -hidden -name dvm@127.0.0.1 -setcookie erchef -eval "rpc:call('erchef@127.0.0.1', sync, go, [])." -s erlang halt
-erl -hidden -name dvm@127.0.0.1 -setcookie erchef -eval "rpc:call('erchef@127.0.0.1', sync, pause, [])." -s erlang halt
 
 
 # oc-chef-pedant
 bundle install
-bundle install --binstubs
+
+# Load options:
+ -- force - do the load process even if it's already loaded.
 
 
 # omnibus-cookbooks
+precheck: does bind mount exist?
 mount -o bind /mnt/host/oc/opscode-omnibus/files/private-chef-cookbooks/private-chef /opt/opscode/embedded/cookbooks/private-chef
 chef-server-ctl reconfigure
 
@@ -59,6 +54,13 @@ chef-server-ctl reconfigure
  - if a project is loaded and started, make sure to kill it again reconfigure? Or can we temporarily disable restart in some way?
 # Note after a reconfigure we change hostname in ngnx - wtf isn't it picking up the saved prop?
 
+For a dep:
+ - rm orgiingal
+ - symlink new
+ -
+ - run
+-= mounted check; /mnt/host/oc/oc_erchef/_rel/oc_erchef on /opt/opscode/embedded/service/opscode-erchef type none (rw,bind)
+# Load options:
+ -- force - do the load process even if it's already loaded.
 
-
-
+some basic testing cookbooks set up with test org?

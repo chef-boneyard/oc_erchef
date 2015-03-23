@@ -32,7 +32,9 @@ module DVM
     def list(project = nil)
       if project == nil
         @projects.each do |name, p|
-          say(" > #{highline.color(name, :green)}")
+          say("#{HighLine.color(name, :green)}")
+          deps = p.deps.keys
+          say(" Loadable deps: #{deps.join(" ")}") if deps.length > 0
         end
       else
         say(highline.color("#{project} deps:", :bold))
@@ -44,17 +46,26 @@ module DVM
       end
     end
 
+    option :"no-build", type: :boolean,
+                        aliases: ['-n'],
+                        desc: "skip the build phase and just load/mount the source path"
     desc "load <project> [dep]", "load a project or project's named dependency"
     def load(project_name, dep = nil)
       ensure_project(project_name)
+      if dep.nil?
+        @projects[project_name].load(options[:build])
+      else
+        @projects[project_name].load_dep(dep, options[:build])
+      end
     end
+
 
     desc "etop <project>", "run etop to monitor the running project"
     def etop(project_name)
       ensure_project(project_name)
     end
 
-    desc "update <project>",  "if the  project supports it, apply any updates"
+    desc "update <project>",  "if the  project supports it, apply any updates to a running instance"
     def update(project_name)
       ensure_project(project_name)
       @projects[project_name].update
@@ -70,7 +81,6 @@ module DVM
     def psql(project_name)
       ensure_project(project_name)
       database = @projects[project_name].database
-      raise ArgumentError, "#{project_name} does not have a postgres database associated"
       exec "sudo -u opscode-pgsql /opt/opscode/embedded/bin/psql #{database}"
     end
 
