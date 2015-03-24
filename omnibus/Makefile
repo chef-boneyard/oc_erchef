@@ -76,5 +76,4 @@ prune_%:
 
 # Bundle install and build chef-server
 dev-build: clear_pkg_cache prune
-	cd .kitchen/kitchen-vagrant/default-$(DEV_PLATFORM) && \
-	    vagrant ssh --command "cd opscode-omnibus && bundle install && time ./bin/omnibus build chef-server"
+	kitchen exec default-$(DEV_PLATFORM) -c "bash -l -c 'cd oc_erchef/omnibus && bundle install && time bundle exec omnibus build chef-server'"

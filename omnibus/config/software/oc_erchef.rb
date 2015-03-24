@@ -15,10 +15,8 @@
 #
 
 name "oc_erchef"
-
-default_version "1.6.5"
-
-source git: "git@github.com:opscode/oc_erchef"
+default_version "HEAD"
+source git: "file://#{File.expand_path("{project.files_path}/../..")}/.git"
 
 dependency "erlang"
 dependency "rebar"
