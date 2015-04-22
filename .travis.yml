@@ -3,6 +3,11 @@ branches:
     - master
 cache:
   bundler: true
+  directories:
+    - $HOME/perl5
+    - $HOME/.cpanm
+    - $HOME/.cpan
+
 language: erlang
 otp_release:
   - R16B03-1
@@ -11,12 +16,18 @@ install:
 before_script:
   - sudo apt-get update -qq
   - sudo apt-get install -y cpanminus perl libdbd-pg-perl build-essential
-  - sudo cpanm --quiet --notest App::Sqitch
+  - cpanm --local-lib=$HOME/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
+  - cpanm --quiet --notest App::Sqitch
 addons:
   postgresql: "9.3"
 script:
+  - export PATH=$HOME/perl5/bin:$PATH
   - sudo chmod 777 /var/run/postgresql/
-  - make bundle
   - make
   - ./rebar skip_deps=true ct
   - ./rebar skip_deps=true eunit
+
+
+
+
+
