@@ -43,7 +43,8 @@
                   %% DEVVM=1 environment variable is present.
                   sync,
                   mixer,
-                  eunit
+                  eunit,
+                  tools
                  ]},
   {mod, { oc_erchef_app, []}},
   {env, []}
