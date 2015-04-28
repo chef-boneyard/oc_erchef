@@ -1,7 +1,7 @@
 %% -*- erlang-indent-level: 4;indent-tabs-mode: nil; fill-column: 92 -*-
 %% ex: ts=4 sw=4 et
 %%
-%% Copyright 2011-2014 Chef Software, Inc. All Rights Reserved.
+%% Copyright 2011-2015 Chef Software, Inc.
 %%
 %% This file is provided to you under the Apache License,
 %% Version 2.0 (the "License"); you may not use this file
@@ -23,25 +23,26 @@
 %% @author Christopher Maier <cm@opscode.com>
 %% @author Mark Mzyk <mmzyk@opscode.com>
 %% @author Seth Chisamore <schisamo@opscode.com>
+%% @author Marc Paradise <marc@chef.io>
 
 -module(chef_db).
+-include("../../include/chef_db.hrl").
+-include("../../include/chef_types.hrl").
+-include("../../include/oc_chef_types.hrl").
+-include("../../include/chef_osc_defaults.hrl").
+-include_lib("stats_hero/include/stats_hero.hrl").
+
 
 -export([
          %% Context record manipulation
          make_context/2,
          make_context/3,
-         make_context/4,
          darklaunch_from_context/1,
 
          create_name_id_dict/3,
 
          fetch_org_id/2,
          fetch_org_metadata/2,
-
-         %% temporary hack for reindex script until
-         %% orgs are migrated
-         cdb_fetch_org_metadata/2,
-         sql_fetch_org_metadata/2,
 
          fetch_requestor/3,
          fetch_requestors/3,
@@ -82,7 +83,6 @@
          count_nodes/1,
 
          is_user_in_org/3,
-         connect/0,
          create/3,
          delete/2,
          list/2,
@@ -94,15 +94,8 @@
          data_bag_exists/3,
          environment_exists/3]).
 
--include("../../include/chef_db.hrl").
--include("../../include/chef_types.hrl").
--include("../../include/oc_chef_types.hrl").
--include("../../include/chef_osc_defaults.hrl").
--include_lib("stats_hero/include/stats_hero.hrl").
-
 -record(context, {server_api_version,
                   reqid :: binary(),
-                  otto_connection,
                   darklaunch = undefined}).
 
 -define(gv(Key, PList), proplists:get_value(Key, PList)).
@@ -155,13 +148,10 @@
 -endif.
 
 make_context(ApiVersion, ReqId) ->
-    #context{server_api_version = ApiVersion, reqid = ReqId, darklaunch = undefined, otto_connection = chef_otto:connect()}.
+    #context{server_api_version = ApiVersion, reqid = ReqId, darklaunch = undefined}.
 
 make_context(ApiVersion, ReqId, Darklaunch) ->
-    #context{server_api_version = ApiVersion, reqid = ReqId, darklaunch = Darklaunch, otto_connection = chef_otto:connect()}.
-
-make_context(ApiVersion, ReqId, Darklaunch, OttoServer) ->
-    #context{server_api_version = ApiVersion, reqid = ReqId, darklaunch = Darklaunch, otto_connection = OttoServer}.
+    #context{server_api_version = ApiVersion, reqid = ReqId, darklaunch = Darklaunch}.
 
 -spec create(object_rec(), #context{}, object_id()) -> ok | {conflict, term()} | {error, term()}.
 create(#chef_cookbook_version{} = Record, DbContext, ActorId) ->
@@ -279,32 +269,9 @@ fetch_org_id(Context, OrgName) ->
 -spec fetch_org_metadata(#context{}, binary() | ?OSC_ORG_NAME) -> not_found | {binary(), binary()}.
 fetch_org_metadata(_, ?OSC_ORG_NAME) ->
     {?OSC_ORG_ID, ?OSC_REQUESTOR_ID};
-fetch_org_metadata(#context{darklaunch = Darklaunch} = Context, OrgName) ->
-    case chef_db_darklaunch:is_enabled(<<"couchdb_organizations">>, Darklaunch) of
-        true ->
-            cdb_fetch_org_metadata(Context, OrgName);
-        false ->
-            sql_fetch_org_metadata(Context, OrgName)
-    end.
-
-%% For couchdb-based orgs, fetch information from the orgname -> metadata cache
-cdb_fetch_org_metadata(#context{reqid = ReqId,
-                                otto_connection = Server}, OrgName) ->
-    case chef_cache:get(org_metadata, OrgName) of
-        Error when Error =:= not_found orelse Error =:= no_cache ->
-            case ?SH_TIME(ReqId, chef_otto, fetch_org_metadata, (Server, OrgName)) of
-                not_found ->
-                    not_found;
-                {OrgGuid, OrgAuthzId} ->
-                    chef_cache:put(org_metadata, OrgName, {OrgGuid, OrgAuthzId}),
-                    {OrgGuid, OrgAuthzId}
-            end;
-        {ok, {OrgGuid, OrgAuthzId}} ->
-            {OrgGuid, OrgAuthzId}
-    end.
-
-sql_fetch_org_metadata(#context{reqid = ReqId}, OrgName) ->
+fetch_org_metadata(#context{reqid = ReqId}, OrgName) ->
     ?SH_TIME(ReqId, chef_sql, fetch_org_metadata, (OrgName)).
+
 
 %% @doc Given a name and an org, find either a user or a client and return a
 %% #chef_user{} or #chef_client{} record.
@@ -400,7 +367,7 @@ cookbook_exists(#context{reqid=ReqId} = DbContext, OrgName, CookbookName) ->
 %% @doc Given a list of cookbook names and versions, return a list of #chef_cookbook_version
 %% objects.  This is used by the depsolver endpoint.
 -spec bulk_fetch_cookbook_versions(DbContext :: #context{}, OrgName :: binary(), [versioned_cookbook()]) -> [#chef_cookbook_version{}] | {error, any()}.
-bulk_fetch_cookbook_versions(#context{reqid = ReqID} = Ctx, OrgName, []) ->
+bulk_fetch_cookbook_versions(_Ctx, _OrgName, []) ->
     %% Avoid database calls in the case of an empty run_list
     [];
 bulk_fetch_cookbook_versions(#context{reqid = ReqID} = Ctx, OrgName, VersionedCookbooks) ->
@@ -670,29 +637,8 @@ count_nodes(#context{reqid = ReqId} = _Ctx) ->
     end.
 
 -spec is_user_in_org(#context{}, binary(), binary()) -> boolean() | {error, _}.
-is_user_in_org(#context{darklaunch = Darklaunch} = Ctx, User, OrgName) ->
-    case chef_db_darklaunch:is_enabled(<<"couchdb_associations">>, Darklaunch) of
-        true ->
-            cdb_is_user_in_org(Ctx, User, OrgName);
-        false ->
-            sql_is_user_in_org(Ctx, User, OrgName)
-    end.
-
-cdb_is_user_in_org(#context{reqid = ReqId, otto_connection = S}=Ctx, User, OrgName) ->
-    case fetch(#chef_user{username = User}, Ctx) of
-        #chef_user{id = UserId} ->
-            ?SH_TIME(ReqId, chef_otto, is_user_in_org, (S, UserId, OrgName));
-        not_found ->
-            false;
-        {error, Why} ->
-            {error, Why}
-    end.
-
-sql_is_user_in_org(#context{reqid = ReqId}, UserName, OrgName) ->
+is_user_in_org(#context{reqid = ReqId}, UserName, OrgName) ->
     ?SH_TIME(ReqId, chef_sql, is_user_in_org, (UserName, OrgName)).
-
-connect() ->
-    chef_otto:connect().
 
 -spec bulk_get(#context{}, binary(), chef_type(), [binary()]) ->
                       [binary()|ej:json_object()] | {error, _}.
@@ -708,11 +654,7 @@ bulk_get(#context{reqid = ReqId}, _OrgName, environment, Ids) ->
     bulk_get_result(?SH_TIME(ReqId, chef_sql, bulk_get_objects, (environment, Ids)));
 bulk_get(#context{reqid = ReqId, server_api_version = ApiVersion}, OrgName, client, Ids) ->
     ClientRecords = bulk_get_result(?SH_TIME(ReqId, chef_sql, bulk_get_clients, (ApiVersion, Ids))),
-    [chef_client:assemble_client_ejson(C, OrgName) || #chef_client{}=C <- ClientRecords];
-
-% TODO: Can this come out now?
-bulk_get(Ctx, OrgName, Type, Ids) ->
-    bulk_get_couchdb(Ctx, OrgName, Type, Ids).
+    [chef_client:assemble_client_ejson(C, OrgName) || #chef_client{}=C <- ClientRecords].
 
 -spec bulk_get_authz_ids(#context{}, chef_type(), [binary()]) ->
                         [[binary()]] | {error, _}.
@@ -726,16 +668,6 @@ bulk_get_result({ok, L}) when is_list(L) ->
     L;
 bulk_get_result({error, _Why}=Error) ->
     Error.
-
-bulk_get_couchdb(#context{reqid = ReqId, otto_connection = S}=Ctx, OrgName, _Type, Ids) ->
-    %% presently searching for non-nodes goes to couchdb
-    case fetch_org_id(Ctx, OrgName) of
-        not_found ->
-            {error, {not_found, org}};
-        OrgId ->
-            DbName = chef_otto:dbname(OrgId),
-            ?SH_TIME(ReqId, chef_otto, bulk_get, (S, DbName, Ids))
-    end.
 
 -spec data_bag_exists(#context{}, binary(), binary()) -> boolean().
 %% @doc Return true if data bag `DataBag' exists in org `OrgName' and false otherwise.

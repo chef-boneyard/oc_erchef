@@ -15,7 +15,6 @@
                   depsolver,
                   oc_chef_authz,
                   oc_chef_wm,
-
                   %% TODO: The following deps should be pulled in by the above
                   %% apps, but they aren't. Isn't that sad? We should fix it!
                   bear,
@@ -29,7 +28,6 @@
                   gs,
                   jiffy,
                   mini_s3,
-                  oauth,
                   observer,
                   opscoderl_folsom,
                   opscoderl_httpc,

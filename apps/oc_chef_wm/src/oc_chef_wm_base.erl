@@ -856,10 +856,12 @@ create_500_response(Req, State) ->
     Json = chef_json:encode({[{<<"error">>, [Msg]}]}),
     Req1 = wrq:set_resp_header("Content-Type",
                                "application/json", Req),
+
     Req2 = add_api_info_header(Req1, State),
     wrq:set_resp_body(Json, Req2).
 
 %% @doc Extract information from `State' needed to generate the X-Ops-API-Info header value.
+%% TODO this is to be retired with ?API_v0
 api_info(#base_state{api_version = ApiVersion,
                      otp_info = {ReleaseName, OtpVersion},
                      server_flavor = ServerFlavor}) ->
@@ -877,8 +879,12 @@ api_info_header_value(#base_state{}=State) ->
 %% @doc Add the X-Ops-API-Info header to the outgoing response.  This contains server API
 %% version information (useful for maintaining back-compatibility) as well as OTP version
 %% information (more useful for debugging purposes).
-add_api_info_header(Req, State) ->
-    wrq:set_resp_header("X-Ops-API-Info", api_info_header_value(State), Req).
+add_api_info_header(Req, #base_state{server_api_version = ?API_v0}  = State) ->
+    wrq:set_resp_header("X-Ops-API-Info", api_info_header_value(State), Req);
+add_api_info_header(Req, _State) ->
+    % X-Ops-API-Info header deprecated, the only one that matters is
+    % Server-Api-Version and it's available at /server-api-version
+    Req.
 
 -spec verify_request_signature(#wm_reqdata{}, #base_state{}) ->
                                       {boolean(), #wm_reqdata{}, #base_state{}}.
