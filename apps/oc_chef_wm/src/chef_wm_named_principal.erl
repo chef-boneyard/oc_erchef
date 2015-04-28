@@ -123,7 +123,7 @@ to_json(Req, #base_state{server_api_version = ?API_v0, resource_state = Principa
 to_json(Req, #base_state{resource_state = Principals,
                          chef_db_context = DbContext, organization_name = OrgName} = State) ->
     EJ = [ assemble_principal_ejson(Principal, OrgName, DbContext) || Principal <- Principals ],
-    Json = chef_:encode({[{ <<"principals">>, EJ}]} ),
+    Json = chef_json:encode({[{ <<"principals">>, EJ}]} ),
     {Json, Req, State}.
 
 assemble_principal_ejson(#principal_state{name = Name,
