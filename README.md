@@ -1,5 +1,16 @@
-oc_erchef - Chef Server API
+DEPRECATED oc_erchef - Chef Server API
 ===========================
+
+# DEPRECATED: Moved to chef-server repository
+
+New development on this component of the Chef Server now happens
+in the Chef Server repository:
+
+https://github.com/chef/chef-server
+
+This repository should only be used for changes to older versions
+of Chef Server.
+
 
 [![Build Status Master](https://travis-ci.org/chef/oc_erchef.svg?branch=master)](https://travis-ci.org/chef/oc_erchef)
 
