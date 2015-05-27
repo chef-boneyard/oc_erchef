@@ -114,7 +114,12 @@
 %%============================================================================
 %% type
 %%============================================================================
+-ifdef(namespaced_types).
 -type dep_graph() :: gb_tree().
+-else.
+-type dep_graph() :: gb_trees:tree().
+-endif.
+
 -opaque t() :: {?MODULE, dep_graph()}.
 -type pkg() :: {pkg_name(), vsn()}.
 -type pkg_name() :: binary() | atom().
